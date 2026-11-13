@@ -1,0 +1,6 @@
+[project]
+name = "01-ccwc"
+version = "0.1.0"
+
+[project.scripts]
+ccwc = "main:main"
