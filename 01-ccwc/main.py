@@ -2,7 +2,9 @@ import argparse
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Count the number of bytes in a file.")
+    parser = argparse.ArgumentParser(
+        description="Get byte, line, or word counts on specified files."
+    )
 
     parser.add_argument(
         "-c",
@@ -23,7 +25,9 @@ def main():
     )
 
     parser.add_argument(
-        "filenames", nargs="+", help="The path to the file to count bytes in."
+        "filenames",
+        nargs="+",
+        help="The path(s) to the file(s) to count bytes, lines, or words in.",
     )
 
     args = parser.parse_args()
