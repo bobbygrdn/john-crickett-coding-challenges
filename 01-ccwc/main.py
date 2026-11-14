@@ -4,7 +4,9 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Get byte, line, word, or character counts on specified file or standard input."
+        description="Get byte, line, word, or character counts on specified file or standard input.",
+        epilog="Examples:\n  ccwc file.txt -l -w\n    Returns line and word count in file\n\n  ccwc -m file.txt\n    Returns character count in file\n\n  cat file.txt | ccwc -c\n    Returns byte count from standard input\n\n  ccwc file.txt\n    Returns line, word, and byte counts in file",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
