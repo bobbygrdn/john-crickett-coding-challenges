@@ -1,15 +1,10 @@
 import argparse
+import sys
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Get byte, line, or word counts on specified files."
-    )
-
-    parser.add_argument(
-        "-c",
-        action="store_true",
-        help="Count the number of bytes in the specified file.",
+        description="Get byte, line, word, or character counts on specified file or standard input."
     )
 
     parser.add_argument(
@@ -25,44 +20,52 @@ def main():
     )
 
     parser.add_argument(
-        "filenames",
-        nargs="+",
-        help="The path(s) to the file(s) to count bytes, lines, or words in.",
+        "-c",
+        action="store_true",
+        help="Count the number of bytes in the specified file.",
+    )
+
+    parser.add_argument(
+        "-m",
+        action="store_true",
+        help="Count the number of characters in the specified file.",
+    )
+
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        help="The file to count bytes, lines, words, or characters in. Stdin is used if no file is specified.",
     )
 
     args = parser.parse_args()
+    flags = [True, True, True, False]
 
-    if args.c or args.l or args.w:
-        flags = [args.c, args.l, args.w]
-        for filename in args.filenames:
-            try:
-                count = count_operation(flags, filename)
-                print(f"{count} {filename}")
-            except FileNotFoundError:
-                print(f"File not found: {filename}")
-    else:
-        print(
-            "No operation specified. Use -c, -l, or -w to count bytes, lines, or words."
-        )
+    if args.l or args.w or args.c or args.m:
+        flags = [args.l, args.w, args.c, args.m]
+    count = count_operation(flags, args.filename)
+    print(count)
 
 
 def count_operation(flags, filename):
-    try:
-        with open(filename, "rb") as f:
-            data = f.read()
-        text = data.decode("utf-8", errors="ignore")
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {filename}")
+    counts = {}
+    with open(filename, "rb") if filename else sys.stdin.buffer as f:
+        for line in f:
+            if flags[0]:  # Count lines
+                counts["lines"] = counts.get("lines", 0) + 1
+            if flags[1]:  # Count words
+                counts["words"] = counts.get("words", 0) + len(line.split())
+            if flags[2]:  # Count bytes
+                counts["bytes"] = counts.get("bytes", 0) + len(line)
+            if flags[3]:  # Count characters
+                counts["characters"] = counts.get("characters", 0) + len(
+                    line.decode(errors="ignore")
+                )
 
-    results = []
-    if flags[0]:  # Count bytes
-        results.append(str(len(data)))
-    if flags[1]:  # Count lines
-        results.append(str(len(text.splitlines())))
-    if flags[2]:  # Count words
-        results.append(str(len(text.split())))
+    result = " ".join(str(v) for v in counts.values()) + (
+        f" {filename}" if filename else ""
+    )
 
-    return " ".join(results)
+    return result.strip()
 
 
 if __name__ == "__main__":
